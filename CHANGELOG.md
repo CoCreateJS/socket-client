@@ -1,3 +1,14 @@
+## [1.40.6](https://github.com/CoCreate-app/CoCreate-socket-client/compare/v1.40.5...v1.40.6) (2026-07-11)
+
+
+### Bug Fixes
+
+* bump package versions ([0e0fb1c](https://github.com/CoCreate-app/CoCreate-socket-client/commit/0e0fb1ca346243b2309ac4c40e2c5eaa88274efc))
+* correct comment typo in socket connection logic ([54becaa](https://github.com/CoCreate-app/CoCreate-socket-client/commit/54becaa2ee701e30ff82f4759df75258156e3cd4))
+* correct minor typos in code comments ([5bd271f](https://github.com/CoCreate-app/CoCreate-socket-client/commit/5bd271ffd43c0117e7beb1911c564fd420493a12))
+* removed post install and add add packages to apprved list ([5c4c43b](https://github.com/CoCreate-app/CoCreate-socket-client/commit/5c4c43be48beaf1155680132a4ce0c71b0092522))
+* semantic version handling ([82657f7](https://github.com/CoCreate-app/CoCreate-socket-client/commit/82657f783e18fb8b49357122dce376ec45576b25))
+
 ## [1.40.5](https://github.com/CoCreate-app/CoCreate-socket-client/compare/v1.40.4...v1.40.5) (2026-02-04)
 
 
