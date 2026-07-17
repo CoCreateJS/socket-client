@@ -1,3 +1,10 @@
+# [1.41.0](https://github.com/CoCreate-app/CoCreate-socket-client/compare/v1.40.6...v1.41.0) (2026-07-17)
+
+
+### Features
+
+* update automated workflow and release configuration for improved semantic release handling ([678eb0e](https://github.com/CoCreate-app/CoCreate-socket-client/commit/678eb0ea7937cbe24397247482de869a0d568c57))
+
 ## [1.40.6](https://github.com/CoCreate-app/CoCreate-socket-client/compare/v1.40.5...v1.40.6) (2026-07-11)
 
 
