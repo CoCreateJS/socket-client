@@ -1,3 +1,10 @@
+## [1.41.2](https://github.com/CoCreate-app/CoCreate-socket-client/compare/v1.41.1...v1.41.2) (2026-07-19)
+
+
+### Bug Fixes
+
+* set default branch to main ([6dc41f2](https://github.com/CoCreate-app/CoCreate-socket-client/commit/6dc41f2a8cbbb68cf672fb5b55603791a5149613))
+
 ## [1.41.1](https://github.com/CoCreate-app/CoCreate-socket-client/compare/v1.41.0...v1.41.1) (2026-07-17)
 
 
