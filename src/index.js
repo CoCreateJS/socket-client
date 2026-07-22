@@ -22,7 +22,7 @@
  * For details, visit <https://cocreate.app/licenses/> or contact us at sales@cocreate.app.
  */
 
-import uuid from "@cocreate/uuid";
+import { ObjectId, uuid } from "@cocreate/utils";
 import config from "@cocreate/config";
 
 const isBrowser = typeof window !== "undefined";
@@ -33,8 +33,8 @@ if (isBrowser) {
     import("@cocreate/indexeddb")
         .then((mod) => {
             indexeddb = mod.default || mod;
-            if (CoCreateSocketClient.clientId && CoCreateSocketClient.clientId.length !== 24 && indexeddb.ObjectId) {
-                CoCreateSocketClient.clientId = indexeddb.ObjectId().toString();
+            if (CoCreateSocketClient.clientId && CoCreateSocketClient.clientId.length !== 24 && ObjectId) {
+                CoCreateSocketClient.clientId = ObjectId().toString();
                 config.set("clientId", CoCreateSocketClient.clientId);
             }
         })
@@ -76,7 +76,7 @@ async function getOrganization() {
 }
 
 const CoCreateSocketClient = {
-    frameId: uuid.generate(8),
+    frameId: uuid(8),
     connected: false,
     listeners: new Map(),
     messageEvents: {},
@@ -97,7 +97,7 @@ const CoCreateSocketClient = {
     async init() {
         this.clientId = config.get("clientId");
         if (!this.clientId || this.clientId === "undefined") {
-            this.clientId = isBrowser && indexeddb ? indexeddb.ObjectId().toString() : uuid.generate(24);
+            this.clientId = ObjectId().toString() 
             config.set("clientId", this.clientId);
         }
 
@@ -168,7 +168,7 @@ const CoCreateSocketClient = {
                 }
 
                 if (!socketId) {
-                    socketId = uuid.generate(8);
+                    socketId = uuid(8);
                     if (isBrowser)
                         sessionStorage.setItem("socketId", socketId);
                 }
@@ -258,10 +258,8 @@ const CoCreateSocketClient = {
                                 config.set(socket.url, message._id);
                             } else if (lastSynced !== message._id) {
                                 if (
-                                    indexeddb &&
-                                    indexeddb.ObjectId &&
-                                    indexeddb.ObjectId(lastSynced).timestamp <
-                                    indexeddb.ObjectId(message._id).timestamp
+                                    ObjectId(lastSynced).timestamp <
+                                    ObjectId(message._id).timestamp
                                 ) {
                                     config.set(socket.url, message._id);
                                 }
@@ -316,17 +314,17 @@ const CoCreateSocketClient = {
 
                     message.status = "received";
 
-                    if (message && message.uid) {
+                    if (message && message.uuid) {
                         if (isBrowser) {
                             const event = new window.CustomEvent(
-                                message.uid,
+                                message.uuid,
                                 {
                                     detail: message
                                 }
                             );
                             window.dispatchEvent(event);
                         } else {
-                            process.emit(message.uid, message);
+                            process.emit(message.uuid, message);
                         }
                     }
 
@@ -373,9 +371,9 @@ const CoCreateSocketClient = {
                 });
         } else {
             if (this.messageQueue.size > 0) {
-                for (let [uid, data] of this.messageQueue) {
+                for (let [uuid, data] of this.messageQueue) {
                     this.send(data);
-                    this.messageQueue.delete(uid);
+                    this.messageQueue.delete(uuid);
                 }
             }
         }
@@ -415,7 +413,7 @@ const CoCreateSocketClient = {
                 data.broadcastSender = false;
             else data.broadcastSender = true;
 
-            if (!data.uid) data.uid = uuid.generate();
+            if (!data.uuid) data.uuid = uuid();
 
             if (!data.namespace) delete data.namespace;
 
@@ -431,14 +429,14 @@ const CoCreateSocketClient = {
 
             delete data.broadcastBrowser;
 
-            const uid = data.uid;
+            const UUID = data.uuid;
             const sockets = await this.getSockets(data);
 
             let isAwait;
             for (let socket of sockets) {
                 data.socketId = socket.id;
-                if (!this.messageEvents[uid])
-                    this.addListener(uid, resolve);
+                if (!this.messageEvents[UUID])
+                    this.addListener(UUID, resolve);
 
                 if (
                     socket.connected &&
@@ -483,7 +481,7 @@ const CoCreateSocketClient = {
                             array: "message_log",
                             upsert: true,
                             object: {
-                                _id: uid,
+                                _id: UUID,
                                 data,
                                 status: "queued"
                             },
@@ -491,26 +489,26 @@ const CoCreateSocketClient = {
                         });
                     }
                 } else if (!indexeddb && data.status === "queued")
-                    this.messageQueue.set(uid, data);
+                    this.messageQueue.set(UUID, data);
             }
         });
     },
 
-    addListener(uid, resolve) {
-        this.messageEvents[uid] = resolve;
+    addListener(UUID, resolve) {
+        this.messageEvents[UUID] = resolve;
         if (isBrowser) {
             const self = this;
             window.addEventListener(
-                uid,
+                UUID,
                 function (event) {
-                    delete self.messageEvents[uid];
+                    delete self.messageEvents[UUID];
                     resolve(event.detail);
                 },
                 { once: true }
             );
         } else {
-            process.once(uid, (data) => {
-                delete this.messageEvents[uid];
+            process.once(UUID, (data) => {
+                delete this.messageEvents[UUID];
                 resolve(data);
             });
         }

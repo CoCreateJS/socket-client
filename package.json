@@ -41,7 +41,6 @@
     "@cocreate/indexeddb": "^1.24.0",
     "@cocreate/local-storage": "^1.17.0",
     "@cocreate/organizations": "^1.31.0",
-    "@cocreate/uuid": "^1.12.4",
     "ws": "^7.5.10"
   },
   "devDependencies": {
@@ -62,7 +61,6 @@
     "@cocreate/render@1.46.1": true,
     "@cocreate/socket-client@1.40.5": true,
     "@cocreate/utils@1.42.2": true,
-    "@cocreate/uuid@1.12.4": true,
     "@cocreate/webpack@1.4.3": true
   }
 }
