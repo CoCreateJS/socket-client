@@ -22,7 +22,7 @@
  * For details, visit <https://cocreate.app/licenses/> or contact us at sales@cocreate.app.
  */
 
-import { ObjectId, uuid } from "@cocreate/utils";
+import { ObjectId, uuid, getClientInfo } from "@cocreate/utils";
 import config from "@cocreate/config";
 
 const isBrowser = typeof window !== "undefined";
@@ -96,6 +96,7 @@ const CoCreateSocketClient = {
 
     async init() {
         this.clientId = config.get("clientId");
+        this.clientInfo = await getClientInfo();
         if (!this.clientId || this.clientId === "undefined") {
             this.clientId = ObjectId().toString() 
             config.set("clientId", this.clientId);
@@ -176,6 +177,7 @@ const CoCreateSocketClient = {
                 const options = {
                     socketId,
                     clientId: this.clientId,
+                    clientInfo: this.clientInfo,
                     user_id: data.user_id || this.user_id,
                     token: token || ""
                 };
