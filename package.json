@@ -37,14 +37,14 @@
   "type": "module",
   "main": "./src/index.js",
   "dependencies": {
-    "@cocreate/config": "^1.14.0",
-    "@cocreate/indexeddb": "^1.24.0",
-    "@cocreate/local-storage": "^1.17.0",
-    "@cocreate/organizations": "^1.31.0",
+    "@cocreate/config": "^1.14.3",
+    "@cocreate/indexeddb": "^1.24.2",
+    "@cocreate/local-storage": "^1.17.2",
+    "@cocreate/organizations": "^1.31.3",
     "ws": "^7.5.10"
   },
   "devDependencies": {
-    "@cocreate/webpack": "^1.6.0"
+    "@cocreate/webpack": "^1.6.2"
   },
   "allowScripts": {
     "@cocreate/actions@1.21.4": true,
