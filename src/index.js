@@ -30,7 +30,7 @@ let WS_Impl;
 let indexeddb = null;
 
 if (isBrowser) {
-    import("../../../CoCreate-storages/CoCreate-indexeddb/src")
+    import("@cocreate/indexeddb")
         .then((mod) => {
             indexeddb = mod.default || mod;
             if (CoCreateSocketClient.clientId && CoCreateSocketClient.clientId.length !== 24 && ObjectId) {
