@@ -13,7 +13,7 @@ Fork the [project on Github](https://github.com/CoCreate-app/CoCreate-socket-cli
 ```
 git CoCreate-socket-client https://github.com/contributor/CoCreate-socket-client.git
 cd CoCreate-socket-client
-git remote add upstream https://github.com/CoCreate-app/CoCreate-socket-client.git
+git remote add upstream https://gitlab.com/cocreatejs/CoCreate-socket-client.git
 ```
 
 ## Create a Topic Branch
