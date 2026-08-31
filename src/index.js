@@ -270,7 +270,7 @@ const CoCreateSocketClient = {
                             let Data = {
                                 method: "object.delete",
                                 array: "message_log",
-                                $filter: {
+                                filter: {
                                     query: {
                                         "modified.on": {
                                             $gt: message.timestamp
@@ -284,7 +284,7 @@ const CoCreateSocketClient = {
                             if (Array.isArray(message[type])) {
                                 for (let item of message[type]) {
                                     if (type == "object") {
-                                        Data.$filter.query["data._id"] =
+                                        Data.filter.query["data._id"] =
                                             item._id;
                                     } else if (
                                         [
@@ -293,7 +293,7 @@ const CoCreateSocketClient = {
                                             "index"
                                         ].includes(type)
                                     ) {
-                                        Data.$filter.query[
+                                        Data.filter.query[
                                             "data.name"
                                         ] = item.name;
                                     }
@@ -359,7 +359,7 @@ const CoCreateSocketClient = {
                 .send({
                     method: "object.delete",
                     array: "message_log",
-                    $filter: {
+                    filter: {
                         query: { status: "queued" }
                     },
                     organization_id: config.organization_id
