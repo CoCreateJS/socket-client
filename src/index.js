@@ -437,7 +437,7 @@ const CoCreateSocketClient = {
             let isAwait;
             for (let socket of sockets) {
                 data.socketId = socket.id;
-                if (!this.messageEvents[UUID])
+                if (data.broadcastSender && !this.messageEvents[UUID])
                     this.addListener(UUID, resolve);
 
                 if (
@@ -493,6 +493,8 @@ const CoCreateSocketClient = {
                 } else if (!indexeddb && data.status === "queued")
                     this.messageQueue.set(UUID, data);
             }
+
+            if (!data.broadcastSender) resolve(data);
         });
     },
 
