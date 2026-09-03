@@ -264,7 +264,8 @@ const CoCreateSocketClient = {
 
                             let Data = {
                                 method: "object.delete",
-                                array: "message_log",
+                                database: "system",
+                                array: "messageQueue",
                                 filter: {
                                     query: {
                                         "modified.on": {
@@ -350,7 +351,8 @@ const CoCreateSocketClient = {
             indexeddb
                 .send({
                     method: "object.delete",
-                    array: "message_log",
+                    database: "system",
+                    array: "messageQueue",
                     filter: {
                         query: { status: "queued" }
                     },
@@ -421,7 +423,8 @@ const CoCreateSocketClient = {
                     if (indexeddb && data.status === "queued") {
                         indexeddb.send({
                             method: "object.update",
-                            array: "message_log",
+                            database: "system",
+                            array: "messageQueue",
                             upsert: true,
                             object: {
                                 _id: UUID,
@@ -599,7 +602,7 @@ const CoCreateSocketClient = {
 
         await storage.send({
             method: "object.create",
-            database: organization_id,
+            database: "system",
             array: "localSocketMessages",
             object: {
                 _id,
@@ -615,7 +618,7 @@ const CoCreateSocketClient = {
 
         storage.send({
             method: "object.delete",
-            database: organization_id,
+            database: "system",
             array: "localSocketMessages",
             filter: {
                 query: {
@@ -636,7 +639,7 @@ const CoCreateSocketClient = {
 
         const data = await storage.send({
             method: "object.read",
-            database: reference.organization_id,
+            database: "system",
             array: "localSocketMessages",
             object: { _id: reference._id },
             organization_id: reference.organization_id

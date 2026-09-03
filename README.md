@@ -79,7 +79,7 @@ The socket server sends to one connected socket for each selected `clientId`. If
 
 # Browser-context delivery
 
-Socket-client stores the complete relay payload in the `localSocketMessages` IndexedDB array. It writes only the record ID and organization ID to the `localSocketMessage` local-storage key, allowing other contexts to retrieve the message without being constrained by local-storage value limits.
+Socket-client stores the complete relay payload in the `localSocketMessages` array of the shared `system` IndexedDB database. The `messageQueue` array uses the same internal database. Records retain `organization_id` for organization-scoped filtering, while application databases remain free of socket transport state. Socket-client writes only the record ID and organization ID to the `localSocketMessage` local-storage key, allowing other contexts to retrieve the message without being constrained by local-storage value limits.
 
 The native `storage` event fires in the other same-origin contexts, not in the context that performed the write. The receiving contexts read the IndexedDB record and fire their local listeners. Each new relay also removes records older than five seconds.
 
