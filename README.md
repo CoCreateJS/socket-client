@@ -40,11 +40,48 @@ $ yarn install @cocreate/socket-client
 # Table of Contents
 
 -   [Table of Contents](#table-of-contents)
+-   [Usage](#usage)
+-   [Message routing](#message-routing)
+-   [Browser-context delivery](#browser-context-delivery)
 -   [Announcements](#announcements)
 -   [Roadmap](#roadmap)
 -   [How to Contribute](#how-to-contribute)
 -   [About](#about)
 -   [License](#license)
+
+# Usage
+
+Messages use one envelope. The `method` selects the event or operation and the remaining properties contain its payload.
+
+```js
+import socket from "@cocreate/socket-client";
+
+const response = await socket.send({
+    method: "notification",
+    message: "The workspace was updated",
+    broadcast: false,
+    broadcastClient: true
+});
+```
+
+The socket client automatically supplies connection metadata including `clientId`, `frameId`, `socketId`, `organization_id`, `uuid`, and `timeStamp`.
+
+# Message routing
+
+-   `clientId` identifies the browser and is shared by its tabs, windows, and same-origin frames.
+-   `frameId` identifies one socket-client runtime, such as a tab, window, or iframe.
+-   `socketId` identifies an individual WebSocket instance. It is generated for each socket and is not shared through session storage.
+-   `broadcast` controls server delivery. `false` targets the originating or selected client; `true` targets eligible clients in the organization.
+-   `broadcastClient` controls whether a received server message is relayed to the browser's other same-origin contexts.
+-   `broadcastSender: false` prevents the originating frame from firing normal method listeners for the response. The response still returns and resolves its UUID promise.
+
+The socket server sends to one connected socket for each selected `clientId`. If one socket cannot be reached, it can try another socket belonging to that client. Browser-context distribution is then handled by socket-client when `broadcastClient` is enabled.
+
+# Browser-context delivery
+
+Socket-client stores the complete relay payload in the `localSocketMessages` IndexedDB array. It writes only the record ID and organization ID to the `localSocketMessage` local-storage key, allowing other contexts to retrieve the message without being constrained by local-storage value limits.
+
+The native `storage` event fires in the other same-origin contexts, not in the context that performed the write. The receiving contexts read the IndexedDB record and fire their local listeners. Each new relay also removes records older than five seconds.
 
 <a name="announcements"></a>
 

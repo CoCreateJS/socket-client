@@ -28,18 +28,21 @@ import config from "@cocreate/config";
 const isBrowser = typeof window !== "undefined";
 let WS_Impl;
 let indexeddb = null;
+let indexeddbPromise = null;
 
 if (isBrowser) {
-    import("@cocreate/indexeddb")
+    indexeddbPromise = import("@cocreate/indexeddb")
         .then((mod) => {
             indexeddb = mod.default || mod;
             if (CoCreateSocketClient.clientId && CoCreateSocketClient.clientId.length !== 24 && ObjectId) {
                 CoCreateSocketClient.clientId = ObjectId().toString();
                 config.set("clientId", CoCreateSocketClient.clientId);
             }
+            return indexeddb;
         })
         .catch((err) => {
             console.warn("[@cocreate/socket-client] Safe Dynamic Fallback: Browser storage engine failed to load.", err);
+            return null;
         });
 }
 
@@ -163,16 +166,7 @@ const CoCreateSocketClient = {
                     token = config.get("token");
                 }
 
-                let socketId;
-                if (isBrowser) {
-                    socketId = sessionStorage.getItem("socketId");
-                }
-
-                if (!socketId) {
-                    socketId = uuid(8);
-                    if (isBrowser)
-                        sessionStorage.setItem("socketId", socketId);
-                }
+                const socketId = uuid(8);
 
                 const options = {
                     socketId,
@@ -238,6 +232,7 @@ const CoCreateSocketClient = {
             socket.onmessage = function (message) {
                 try {
                     message = JSON.parse(message.data);
+                    message.receiverFrameId = self.frameId;
                     if (message.error) {
                         console.error(message.method, message.error);
                         if (message.serverOrganization === false)
@@ -302,19 +297,12 @@ const CoCreateSocketClient = {
                         }
                     }
 
-                    if (
-                        message.broadcastClient &&
-                        message.broadcastBrowser !== false &&
-                        isBrowser &&
-                        message.broadcastBrowser &&
-                        !message.method.endsWith(".read")
-                    )
-                        config.set(
-                            "localSocketMessage",
-                            JSON.stringify(message)
-                        );
-
                     message.status = "received";
+
+                    if (message.broadcastClient && isBrowser)
+                        self.broadcastLocalMessage(message).catch((error) => {
+                            console.error("Failed to broadcast local socket message", error);
+                        });
 
                     if (message && message.uuid) {
                         if (isBrowser) {
@@ -330,7 +318,11 @@ const CoCreateSocketClient = {
                         }
                     }
 
-                    self.__fireListeners(message);
+                    const isSender =
+                        message.clientId === self.clientId &&
+                        message.frameId === self.frameId;
+                    if (!isSender || message.broadcastSender !== false)
+                        self.__fireListeners(message);
                 } catch (e) {
                     console.log(e);
                 }
@@ -397,47 +389,18 @@ const CoCreateSocketClient = {
             if (!data.user_id && this.user_id)
                 data.user_id = this.user_id;
 
-            if (data.broadcast === "false" || data.broadcast === false)
-                data.broadcast = false;
-            else data.broadcast = true;
-
-            if (
-                data.broadcastClient === "false" ||
-                data.broadcastClient === false
-            )
-                data.broadcastClient = false;
-            else data.broadcastClient = true;
-
-            if (
-                data.broadcastSender === "false" ||
-                data.broadcastSender === false
-            )
-                data.broadcastSender = false;
-            else data.broadcastSender = true;
-
             if (!data.uuid) data.uuid = uuid();
 
             if (!data.namespace) delete data.namespace;
 
             if (!data.room) delete data.room;
 
-            let broadcastBrowser = false;
-            if (
-                data.broadcastBrowser === "false" ||
-                data.broadcastBrowser === false
-            )
-                broadcastBrowser = false;
-            else broadcastBrowser = true;
-
-            delete data.broadcastBrowser;
-
             const UUID = data.uuid;
             const sockets = await this.getSockets(data);
 
-            let isAwait;
             for (let socket of sockets) {
                 data.socketId = socket.id;
-                if (data.broadcastSender && !this.messageEvents[UUID])
+                if (!this.messageEvents[UUID])
                     this.addListener(UUID, resolve);
 
                 if (
@@ -446,35 +409,13 @@ const CoCreateSocketClient = {
                     this.serverStorage &&
                     this.organizationBalance
                 ) {
-                    if (data.status === "resolve") resolve(data);
-
-                    if (data.status === "await") isAwait = true;
-
                     delete data.status;
 
                     socket.send(JSON.stringify(data));
                     data.status = "sent";
-                } else if (!data.status) {
-                    data.status = "queued";
-                } else if (
-                    data.status !== "queued" &&
-                    data.status !== "await"
-                ) {
-                    resolve(data);
-                }
+                } else data.status = "queued";
 
                 if (isBrowser) {
-                    if (!isAwait) {
-                        if (data.broadcastSender)
-                            this.sendLocalMessage(data);
-
-                        if (broadcastBrowser)
-                            config.set(
-                                "localSocketMessage",
-                                JSON.stringify(data)
-                            );
-                    }
-
                     if (data.status !== "sent") data.status = "queued";
 
                     if (indexeddb && data.status === "queued") {
@@ -493,8 +434,6 @@ const CoCreateSocketClient = {
                 } else if (!indexeddb && data.status === "queued")
                     this.messageQueue.set(UUID, data);
             }
-
-            if (!data.broadcastSender) resolve(data);
         });
     },
 
@@ -648,16 +587,76 @@ const CoCreateSocketClient = {
 
     sendLocalMessage(data) {
         this.__fireListeners(data);
+    },
+
+    async broadcastLocalMessage(message) {
+        const storage = indexeddb || await indexeddbPromise;
+        if (!storage) return;
+
+        const _id = ObjectId().toString();
+        const organization_id = message.organization_id ||
+            await this.organization_id();
+
+        await storage.send({
+            method: "object.create",
+            database: organization_id,
+            array: "localSocketMessages",
+            object: {
+                _id,
+                message
+            },
+            organization_id
+        });
+
+        config.set(
+            "localSocketMessage",
+            JSON.stringify({ _id, organization_id })
+        );
+
+        storage.send({
+            method: "object.delete",
+            database: organization_id,
+            array: "localSocketMessages",
+            filter: {
+                query: {
+                    "created.on": {
+                        $lte: new Date(Date.now() - 5000).toISOString()
+                    }
+                }
+            },
+            organization_id
+        }).catch((error) => {
+            console.error("Failed to clean up local socket messages", error);
+        });
+    },
+
+    async receiveLocalMessage(reference) {
+        const storage = indexeddb || await indexeddbPromise;
+        if (!storage || !reference?._id || !reference.organization_id) return;
+
+        const data = await storage.send({
+            method: "object.read",
+            database: reference.organization_id,
+            array: "localSocketMessages",
+            object: { _id: reference._id },
+            organization_id: reference.organization_id
+        });
+        const message = data?.object?.[0]?.message;
+        if (message) this.sendLocalMessage(message);
     }
 };
 
 CoCreateSocketClient.init();
 
 if (isBrowser) {
-    window.onstorage = (e) => {
-        if (e.key == "localSocketMessage" && indexeddb && e.newValue) {
-            let data = JSON.parse(e.newValue);
-            CoCreateSocketClient.sendLocalMessage(data);
+    window.onstorage = async (e) => {
+        if (e.key == "localSocketMessage" && e.newValue) {
+            try {
+                const reference = JSON.parse(e.newValue);
+                await CoCreateSocketClient.receiveLocalMessage(reference);
+            } catch (error) {
+                console.error("Failed to receive local socket message", error);
+            }
         }
     };
 }
