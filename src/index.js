@@ -26,6 +26,22 @@ import { ObjectId, uuid, getClientInfo } from "@cocreate/utils";
 import config from "@cocreate/config";
 
 const isBrowser = typeof window !== "undefined";
+
+function getBrowserLocation() {
+    if (!isBrowser) return;
+    if (window.location.host) return window.location;
+
+    try {
+        if (window.parent !== window && window.parent.location.host) {
+            return window.parent.location;
+        }
+    } catch {
+        // Cross-origin parents are intentionally inaccessible.
+    }
+
+    return window.location;
+}
+
 let WS_Impl;
 let indexeddb = null;
 let indexeddbPromise = null;
@@ -110,7 +126,7 @@ const CoCreateSocketClient = {
         if (!this.host || this.host === "undefined") {
             if (isBrowser) {
                 // Browser: Fall back cleanly to client's current domain
-                this.host = window.location.host;
+                this.host = getBrowserLocation().host;
             } else {
                 // Server: Leave empty so getUrls can safely report configuration parameters are missing
                 this.host = "";
@@ -501,7 +517,7 @@ const CoCreateSocketClient = {
         let host = data.host || config.get("host"); // Strictly resolved via isomorphic configuration
         
         if (!host && isBrowser) {
-            host = window.location.host; // Fallback directly to client's browser domain if configuration is empty
+            host = getBrowserLocation().host;
         }
 
         if (isBrowser) {
@@ -557,7 +573,7 @@ const CoCreateSocketClient = {
                 }
             }
         } else if (isBrowser) {
-            let newhost = window.location.host;
+            let newhost = getBrowserLocation().host;
             url = [`${protocol}://${newhost}`];
             url += `/${
                 data.organization_id ||
