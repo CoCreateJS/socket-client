@@ -218,13 +218,6 @@ const CoCreateSocketClient = {
                 return;
             }
 
-            socket.onopen = function (event) {
-                self.connected = true;
-                socket.connected = true;
-                delete data.currentReconnectDelay;
-                self.checkMessageQueue(data);
-            };
-
             socket.onclose = function (event) {
                 socket.connected = false;
                 switch (event.code) {
@@ -248,6 +241,14 @@ const CoCreateSocketClient = {
             socket.onmessage = function (message) {
                 try {
                     message = JSON.parse(message.data);
+                    // Transport open precedes server authentication and message setup.
+                    // Flush requests only after the server confirms it is ready.
+                    if (message.method === "connect") {
+                        self.connected = true;
+                        socket.connected = true;
+                        delete data.currentReconnectDelay;
+                        self.checkMessageQueue(data);
+                    }
                     message.receiverFrameId = self.frameId;
                     if (message.error) {
                         console.error(message.method, message.error);
