@@ -432,7 +432,9 @@ const CoCreateSocketClient = {
 
                     socket.send(JSON.stringify(data));
                     data.status = "sent";
-                } else data.status = "queued";
+                } else {
+                    data.status = "queued";
+                }
 
                 if (isBrowser) {
                     if (data.status !== "sent") data.status = "queued";
