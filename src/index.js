@@ -218,8 +218,21 @@ const CoCreateSocketClient = {
                 return;
             }
 
-            socket.onclose = function (event) {
+            const notifyDisconnect = (event) => {
                 socket.connected = false;
+                self.connected = false;
+                if (socket.__disconnectNotified) return;
+                socket.__disconnectNotified = true;
+                self.__fireListeners({
+                    method: "disconnect",
+                    socketId: socket.id,
+                    url: socket.url,
+                    event
+                });
+            };
+
+            socket.onclose = function (event) {
+                notifyDisconnect(event);
                 switch (event.code) {
                     case 1000: 
                         console.log("websocket: closed");
@@ -231,6 +244,7 @@ const CoCreateSocketClient = {
             };
 
             socket.onerror = function (event) {
+                notifyDisconnect(event);
                 if (!isBrowser) console.error("[@cocreate/socket-client] Server socket transport error:", event.error || event);
                 else if (!window.navigator.onLine)
                     console.log("offline");
@@ -246,8 +260,13 @@ const CoCreateSocketClient = {
                     if (message.method === "connect") {
                         self.connected = true;
                         socket.connected = true;
+                        socket.__disconnectNotified = false;
                         delete data.currentReconnectDelay;
                         self.checkMessageQueue(data);
+                    } else if (message.method === "disconnect") {
+                        socket.connected = false;
+                        self.connected = false;
+                        socket.__disconnectNotified = true;
                     }
                     message.receiverFrameId = self.frameId;
                     if (message.error) {
@@ -339,7 +358,11 @@ const CoCreateSocketClient = {
                     const isSender =
                         message.clientId === self.clientId &&
                         message.frameId === self.frameId;
-                    if (!isSender || message.broadcastSender !== false)
+                    if (
+                        message.method === "connect" ||
+                        !isSender ||
+                        message.broadcastSender !== false
+                    )
                         self.__fireListeners(message);
                 } catch (e) {
                     console.log(e);
