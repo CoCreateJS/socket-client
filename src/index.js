@@ -304,7 +304,7 @@ const CoCreateSocketClient = {
                                 array: "messageQueue",
                                 filter: {
                                     query: {
-                                        "modified.on": {
+                                        "updated.on": {
                                             $gt: message.timestamp
                                         },
                                         status: "queued"
