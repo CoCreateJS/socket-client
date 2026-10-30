@@ -43,23 +43,9 @@ function getBrowserLocation() {
 }
 
 let WS_Impl;
-let indexeddb = null;
-let indexeddbPromise = null;
 
-if (isBrowser) {
-    indexeddbPromise = import("@cocreate/indexeddb")
-        .then((mod) => {
-            indexeddb = mod.default || mod;
-            if (CoCreateSocketClient.clientId && CoCreateSocketClient.clientId.length !== 24 && ObjectId) {
-                CoCreateSocketClient.clientId = ObjectId().toString();
-                config.set("clientId", CoCreateSocketClient.clientId);
-            }
-            return indexeddb;
-        })
-        .catch((err) => {
-            console.warn("[@cocreate/socket-client] Safe Dynamic Fallback: Browser storage engine failed to load.", err);
-            return null;
-        });
+function getIndexeddb() {
+    return isBrowser ? window.CoCreate?.indexeddb : null;
 }
 
 async function getWebSocketImpl() {
@@ -118,6 +104,10 @@ const CoCreateSocketClient = {
         this.clientInfo = await getClientInfo();
         if (!this.clientId || this.clientId === "undefined") {
             this.clientId = ObjectId().toString() 
+            config.set("clientId", this.clientId);
+        }
+        if (this.clientId && this.clientId.length !== 24 && ObjectId) {
+            this.clientId = ObjectId().toString();
             config.set("clientId", this.clientId);
         }
 
@@ -387,8 +377,16 @@ const CoCreateSocketClient = {
     },
 
     checkMessageQueue(config) {
-        if (isBrowser && indexeddb) {
-            indexeddb
+        if (this.messageQueue.size > 0) {
+            for (let [uuid, data] of this.messageQueue) {
+                this.send(data);
+                this.messageQueue.delete(uuid);
+            }
+        }
+
+        const storage = getIndexeddb();
+        if (isBrowser && storage) {
+            storage
                 .send({
                     method: "object.delete",
                     database: "system",
@@ -405,13 +403,6 @@ const CoCreateSocketClient = {
                         }
                     }
                 });
-        } else {
-            if (this.messageQueue.size > 0) {
-                for (let [uuid, data] of this.messageQueue) {
-                    this.send(data);
-                    this.messageQueue.delete(uuid);
-                }
-            }
         }
     },
 
@@ -462,8 +453,9 @@ const CoCreateSocketClient = {
                 if (isBrowser) {
                     if (data.status !== "sent") data.status = "queued";
 
-                    if (indexeddb && data.status === "queued") {
-                        indexeddb.send({
+                    const storage = getIndexeddb();
+                    if (storage && data.status === "queued") {
+                        storage.send({
                             method: "object.update",
                             database: "system",
                             array: "messageQueue",
@@ -475,9 +467,12 @@ const CoCreateSocketClient = {
                             },
                             organization_id: data.organization_id
                         });
+                    } else if (data.status === "queued") {
+                        this.messageQueue.set(UUID, data);
                     }
-                } else if (!indexeddb && data.status === "queued")
+                } else if (data.status === "queued") {
                     this.messageQueue.set(UUID, data);
+                }
             }
         });
     },
@@ -635,7 +630,7 @@ const CoCreateSocketClient = {
     },
 
     async broadcastLocalMessage(message) {
-        const storage = indexeddb || await indexeddbPromise;
+        const storage = getIndexeddb();
         if (!storage) return;
 
         const _id = ObjectId().toString();
@@ -676,7 +671,7 @@ const CoCreateSocketClient = {
     },
 
     async receiveLocalMessage(reference) {
-        const storage = indexeddb || await indexeddbPromise;
+        const storage = getIndexeddb();
         if (!storage || !reference?._id || !reference.organization_id) return;
 
         const data = await storage.send({
