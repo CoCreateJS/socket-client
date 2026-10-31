@@ -49,7 +49,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/cocreatejs/CoCreate-socket-client.git"
+    "url": "git+https://github.com/cocreatejs/CoCreate-socket-client.git"
   },
   "author": "CoCreate LLC",
   "license": "AGPL-3.0",
