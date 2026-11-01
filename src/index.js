@@ -81,17 +81,83 @@ async function getOrganization() {
 }
 
 const CoCreateSocketClient = {
+    /**
+     *
+ * @public
+ * @environment client
+ * @environment server
+ */
     frameId: uuid(8),
+    /**
+     *
+ * @public
+ * @environment client
+ * @environment server
+ */
     connected: false,
     listeners: new Map(),
+    /**
+     *
+ * @public
+ * @environment client
+ * @environment server
+ */
     messageEvents: {},
+    /**
+     *
+ * @public
+ * @environment client
+ * @environment server
+ */
     messageQueue: new Map(), 
+    /**
+     *
+ * @public
+ * @environment client
+ * @environment server
+ */
     configQueue: new Map(),
+    /**
+     *
+ * @public
+ * @environment client
+ * @environment server
+ */
     maxReconnectDelay: 600000,
+    /**
+     *
+ * @public
+ * @environment client
+ * @environment server
+ */
     organization: false, 
+    /**
+     *
+ * @public
+ * @environment client
+ * @environment server
+ */
     serverStorage: true, 
+    /**
+     *
+ * @public
+ * @environment client
+ * @environment server
+ */
     serverOrganization: true, 
+    /**
+     *
+ * @public
+ * @environment client
+ * @environment server
+ */
     organizationBalance: true, 
+    /**
+     *
+ * @public
+ * @environment client
+ * @environment server
+ */
     organization_id: async () => {
         return (
             organizationPromise ||
@@ -362,6 +428,12 @@ const CoCreateSocketClient = {
     },
 
     __fireListeners(data) {
+        /**
+         *
+ * @public
+ * @environment client
+ * @environment server
+ */
         const listeners = this.listeners.get(data.method) || [];
         listeners.forEach((listener) => {
             listener(data);
@@ -702,3 +774,11 @@ if (isBrowser) {
 }
 
 export default CoCreateSocketClient;
+
+/**
+ * A simple socket component in vanilla javascript. Easily configured using HTML5 attributes and/or JavaScript API.
+ *
+ * @module socket-client
+ * @environment client
+ * @environment server
+ */
