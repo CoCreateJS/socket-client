@@ -1,3 +1,41 @@
+# [2.0.0](https://github.com/CoCreateJS/socket-client/compare/v1.41.2...v2.0.0) (2026-11-02)
+
+
+### Bug Fixes
+
+* add "type": "module" to package.json ([a9ffaa6](https://github.com/CoCreateJS/socket-client/commit/a9ffaa631cb276501ca90c59e4d4dbdf95613688))
+* add Deno specific entries to .gitignore ([d632e21](https://github.com/CoCreateJS/socket-client/commit/d632e216fd46b8ee3cb13cfd9362e39dbd2a3d0c))
+* bump [@cocreate](https://github.com/cocreate) dependencies ([4ccf52e](https://github.com/CoCreateJS/socket-client/commit/4ccf52ec78fdf7a71327c0f9411130d2585e8589))
+* bump versions ([3f70c1f](https://github.com/CoCreateJS/socket-client/commit/3f70c1f8d04a25747dec830e43767ea5b547a899))
+* bump versions ([833ab70](https://github.com/CoCreateJS/socket-client/commit/833ab70fd3b826d2071fc2e3d0c34a00ae927495))
+* emit socket disconnect lifecycle events ([70904ec](https://github.com/CoCreateJS/socket-client/commit/70904ec7ff18044b8ba15ca53071ef8fbee98fab))
+* improve socket message handling ([46543de](https://github.com/CoCreateJS/socket-client/commit/46543de63e82ca67aa008c6c67bcfc64b7381294))
+* remove deprecated allowScripts section and update indexeddb import path ([963f95e](https://github.com/CoCreateJS/socket-client/commit/963f95e45bc9ed16f897a91ae0cd3d0b41e4381f))
+* remove trailing slash from node_modules entry in .gitignore ([0708f04](https://github.com/CoCreateJS/socket-client/commit/0708f0460d81052914b1ebd50711708124fd452b))
+* replace legacy $filter field with filter ([e060278](https://github.com/CoCreateJS/socket-client/commit/e06027808bb13c27890066297459398fb509622b))
+* resolve socket sends without sender broadcast ([1094df1](https://github.com/CoCreateJS/socket-client/commit/1094df11af4a778c2b594a6c76d9afab90905477))
+* update git url ([e2e8ede](https://github.com/CoCreateJS/socket-client/commit/e2e8ede71232c7c1aa9b70b53c1be1811d852025))
+* update GitHub Actions to use latest versions and sync package.json description ([047c0c6](https://github.com/CoCreateJS/socket-client/commit/047c0c62afea1620b1a5b4afaaad188c3b9b0b7a))
+* wait for server readiness before sending socket requests ([744d52c](https://github.com/CoCreateJS/socket-client/commit/744d52ca9ccfa204392831296b3babc4e4f11fd4))
+
+
+### chore
+
+* record package identity migration as breaking ([5d0e79b](https://github.com/CoCreateJS/socket-client/commit/5d0e79b8afdaf51610369b8961fc1485950831e0))
+
+
+### Features
+
+* add getClientInfo to CoCreateSocketClient initialization ([a86e8f0](https://github.com/CoCreateJS/socket-client/commit/a86e8f0181168b8e07352f741302d46aa5007d22))
+* convert to ES module syntax and improve WebSocket handling ([2156ba7](https://github.com/CoCreateJS/socket-client/commit/2156ba7d9b77ae6266cc13fa25ccfcbedbe7113e))
+* improve client socket routing ([d4fe3f4](https://github.com/CoCreateJS/socket-client/commit/d4fe3f499da831819bbb1d6e337b86d19c001d1a))
+* replace uuid import and usage with utils ([7bc203f](https://github.com/CoCreateJS/socket-client/commit/7bc203f8d8dae305fb30c36961da120713336ee6))
+
+
+### BREAKING CHANGES
+
+* Consumers must install @cocreate/socket-client and use the renamed CoCreateJS repository identity; the previous package and repository identities are no longer supported.
+
 ## [1.41.2](https://github.com/CoCreateJS/CoCreate-socket-client/compare/v1.41.1...v1.41.2) (2026-07-19)
 
 
