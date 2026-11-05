@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/CoCreateJS/socket-client/compare/v2.0.0...v2.0.1) (2026-11-05)
+
+
+### Bug Fixes
+
+* upgrade CoCreate dependencies to v2 ([21b223b](https://github.com/CoCreateJS/socket-client/commit/21b223b52ab0e1fdb352fa65fb50d3c3296a83ec))
+
 # [2.0.0](https://github.com/CoCreateJS/socket-client/compare/v1.41.2...v2.0.0) (2026-11-02)
 
 
