@@ -37,13 +37,13 @@
   "type": "module",
   "main": "./src/index.js",
   "dependencies": {
-    "@cocreate/config": "^1.21.0",
-    "@cocreate/local-storage": "^1.20.0",
-    "@cocreate/organizations": "^1.38.0",
-    "@cocreate/utils": "^1.54.0",
+    "@cocreate/config": "^2.0.0",
+    "@cocreate/local-storage": "^2.0.0",
+    "@cocreate/organizations": "^2.0.0",
+    "@cocreate/utils": "^2.0.0",
     "ws": "^7.5.10"
   },
   "devDependencies": {
-    "@cocreate/webpack": "^1.9.0"
+    "@cocreate/webpack": "^2.0.0"
   }
 }
